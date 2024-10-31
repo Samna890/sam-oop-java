@@ -1,0 +1,217 @@
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.Scanner;
+
+class Contact {
+    private String Sname;
+    private String Aname;
+    private ArrayList<String> phoneNum;
+    private String affiliation;
+    private String occupation;
+    private String note;
+    private GregorianCalendar dob;
+
+    public Contact(String Sname, String Aname, ArrayList<String> phoneNum, String affiliation,
+                   String occupation, String note, GregorianCalendar dob) {
+        this.Sname = Sname;
+        this.Aname = Aname;
+        this.phoneNum = phoneNum;
+        this.affiliation = affiliation;
+        this.occupation = occupation;
+        this.note = note;
+        this.dob = dob;
+    }
+
+    public boolean replaceNumber(String oldNum, String newNum) {
+        int index = phoneNum.indexOf(oldNum);
+        if (index != -1) {
+            phoneNum.set(index, newNum);
+            return true;
+        }
+        return false;
+    }
+
+    public String getFullName() {
+        return Sname + " " + Aname;
+    }
+
+    public ArrayList<String> getPhoneNumbers() {
+        return phoneNum;
+    }
+
+    @Override
+    public String toString() {
+        return Sname + " " + Aname + ", Phone Numbers: " + String.join(", ", phoneNum) +
+                ", Affiliation: " + affiliation + ", Occupation: " + occupation +
+                ", Note: " + note + ", DOB: " + dob.getTime();
+    }
+}
+
+class Directory {
+    private ArrayList<Contact> contacts;
+
+    public Directory() {
+        contacts = new ArrayList<>();
+    }
+
+    public void addContact(Contact contact) {
+        contacts.add(contact);
+    }
+
+    public Contact searchContact(String Sname, String Aname) {
+        for (Contact contact : contacts) {
+            if (contact.getFullName().equalsIgnoreCase(Sname + " " + Aname)) {
+                return contact;
+            }
+        }
+        return null;
+    }
+
+    public boolean deleteContact(String Sname, String Aname) {
+        Contact toRemove = searchContact(Sname, Aname);
+        if (toRemove != null) {
+            contacts.remove(toRemove);
+            return true;
+        }
+        return false;
+    }
+
+    public void displayContacts() {
+        if (contacts.isEmpty()) {
+            System.out.println("Directory is empty.");
+        } else {
+            for (Contact contact : contacts) {
+                System.out.println(contact);
+            }
+        }
+    }
+}
+
+public class TestApplication {
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        Directory directory = new Directory();
+
+        while (true) {
+            displayMenu();
+            int choice = getUserInput("Select an option:");
+
+            switch (choice) {
+                case 1:
+                    addNewContact(directory);
+                    break;
+                case 2:
+                    searchAndDisplayContact(directory);
+                    break;
+                case 3:
+                    deleteContact(directory);
+                    break;
+                case 4:
+                    replaceContactNumber(directory);
+                    break;
+                case 5:
+                    directory.displayContacts();
+                    break;
+                case 6:
+                    System.out.println("Exiting the application. Goodbye!");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private static void displayMenu() {
+        System.out.println("\n--- Contact Directory ---");
+        System.out.println("1. Add Contact");
+        System.out.println("2. Search Contact");
+        System.out.println("3. Delete Contact");
+        System.out.println("4. Replace Number");
+        System.out.println("5. Display All Contacts");
+        System.out.println("6. Exit");
+    }
+
+    private static int getUserInput(String prompt) {
+        System.out.print(prompt + " ");
+        return scanner.nextInt();
+    }
+
+    private static void addNewContact(Directory directory) {
+        scanner.nextLine();
+        System.out.println("Enter Sname:");
+        String Sname = scanner.nextLine();
+        System.out.println("Enter Aname:");
+        String Aname = scanner.nextLine();
+        System.out.println("Enter Phone Numbers (comma separated):");
+        String[] numbersArray = scanner.nextLine().split(",");
+        ArrayList<String> phoneNum = new ArrayList<>();
+        for (String number : numbersArray) {
+            phoneNum.add(number.trim());
+        }
+        System.out.println("Enter Affiliation:");
+        String affiliation = scanner.nextLine();
+        System.out.println("Enter Occupation:");
+        String occupation = scanner.nextLine();
+        System.out.println("Enter Note:");
+        String note = scanner.nextLine();
+        System.out.println("Enter Date of Birth (yyyy-mm-dd):");
+        String[] dobParts = scanner.nextLine().split("-");
+        GregorianCalendar dob = new GregorianCalendar(Integer.parseInt(dobParts[0]),
+                Integer.parseInt(dobParts[1]) - 1,
+                Integer.parseInt(dobParts[2]));
+
+        Contact newContact = new Contact(Sname, Aname, phoneNum, affiliation, occupation, note, dob);
+        directory.addContact(newContact);
+        System.out.println("Contact added successfully.");
+    }
+
+    private static void searchAndDisplayContact(Directory directory) {
+        scanner.nextLine();
+        System.out.println("Enter Sname:");
+        String Sname = scanner.nextLine();
+        System.out.println("Enter Aname:");
+        String Aname = scanner.nextLine();
+        Contact foundContact = directory.searchContact(Sname, Aname);
+        if (foundContact != null) {
+            System.out.println("Found Contact: " + foundContact);
+        } else {
+            System.out.println("Contact not found.");
+        }
+    }
+
+    private static void deleteContact(Directory directory) {
+        scanner.nextLine();
+        System.out.println("Enter Sname:");
+        String Sname = scanner.nextLine();
+        System.out.println("Enter Aname:");
+        String Aname = scanner.nextLine();
+        if (directory.deleteContact(Sname, Aname)) {
+            System.out.println("Contact deleted successfully.");
+        } else {
+            System.out.println("Contact not found.");
+        }
+    }
+
+    private static void replaceContactNumber(Directory directory) {
+        scanner.nextLine();
+        System.out.println("Enter Sname:");
+        String Sname = scanner.nextLine();
+        System.out.println("Enter Aname:");
+        String Aname = scanner.nextLine();
+        Contact contact = directory.searchContact(Sname, Aname);
+        if (contact != null) {
+            System.out.println("Enter old number:");
+            String oldNumber = scanner.nextLine();
+            System.out.println("Enter new number:");
+            String newNumber = scanner.nextLine();
+            if (contact.replaceNumber(oldNumber, newNumber)) {
+                System.out.println("Phone number replaced successfully.");
+            } else {
+                System.out.println("Old number not found.");
+            }
+        } else {
+            System.out.println("Contact not found.");
+        }
+    }
+}
